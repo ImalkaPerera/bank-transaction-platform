@@ -1,19 +1,31 @@
+# ======================== Filebeat Configuration ========================
+
+# Define where Filebeat should look for log files
 filebeat.inputs:
   - type: log
     enabled: true
+    # Watch for all .log files in this directory (mapped from the host)
     paths:
       - /var/log/app/*.log
+    
+    # Since our Spring Boot apps output JSON logs, parse them natively
     json.keys_under_root: true
     json.add_error_key: true
+    
+    # Add custom fields to identify where these logs are coming from
     fields:
       app: bank-transaction-platform
     fields_under_root: true
 
+# Define where Filebeat should send the collected logs
 output.logstash:
+  # Send logs to the Logstash container on port 5044
   hosts: ["logstash:5044"]
 
+# Internal queue configuration for performance buffering
 queue.mem:
   events: 4096
   flush.min_events: 512
 
+# Filebeat's own logging level
 logging.level: info

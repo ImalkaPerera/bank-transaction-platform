@@ -70,7 +70,7 @@ services:
       - logstash
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/log/app:/var/log/app
+      - ../services/account-service/logs:/var/log/app
     networks:
       - elk
 

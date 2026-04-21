@@ -1,3 +1,10 @@
+# ======================== Elasticsearch Configuration ========================
+
+# Enable X-Pack security to require authentication (username/password)
 xpack.security.enabled: true
+
+# Disable SSL for node-to-node communication (suitable for local dev/Docker, but enable in production)
 xpack.security.transport.ssl.enabled: false
+
+# Bind Elasticsearch to all network interfaces so it can be accessed from outside the container
 http.host: 0.0.0.0

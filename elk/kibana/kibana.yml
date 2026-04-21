@@ -1,3 +1,10 @@
+# ======================== Kibana Configuration ========================
+
+# The display name of this Kibana instance
 server.name: kibana
+
+# Bind Kibana to all network interfaces so it can be accessed from outside the container
 server.host: "0.0.0.0"
+
+# The URL of the Elasticsearch instance Kibana should connect to
 elasticsearch.hosts: ["http://elasticsearch:9200"]
