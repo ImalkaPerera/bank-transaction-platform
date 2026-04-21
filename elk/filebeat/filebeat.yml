@@ -1,0 +1,19 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/app/*.log
+    json.keys_under_root: true
+    json.add_error_key: true
+    fields:
+      app: bank-transaction-platform
+    fields_under_root: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+queue.mem:
+  events: 4096
+  flush.min_events: 512
+
+logging.level: info
