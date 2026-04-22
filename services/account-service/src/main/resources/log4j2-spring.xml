@@ -2,22 +2,63 @@
 <Configuration status="WARN">
 
     <Properties>
-        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{36} - %m%n</Property>
-        <Property name="JSON_PATTERN">{"@timestamp":"%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}","level":"%p","logger_name":"%c{36}","thread_name":"%t","message":"%enc{%m}{JSON}","service":"account-service","app":"bank-transaction-platform","stack_trace":"%enc{%throwable}{JSON}"}%n</Property>
+        <Property name="LOG_PATTERN">
+            %d{yyyy-MM-dd HH:mm:ss} [%X{traceId}] %-5p %c{36} - %m%n
+        </Property>
     </Properties>
 
     <Appenders>
+
+        <!-- Console output for IntelliJ -->
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
 
-        <RollingFile name="FILE" fileName="logs/account-service.log" filePattern="logs/account-service.%d{yyyy-MM-dd}.log">
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-            <PatternLayout pattern="${JSON_PATTERN}"/>
+        <RollingFile name="FILE"
+                     fileName="logs/account-service.log"
+                     filePattern="logs/account-service.%d{yyyy-MM-dd}.log">
+            <JsonTemplateLayout>
+                <EventTemplateAdditionalField
+                        key="service"
+                        value="account-service"/>
+                <EventTemplateAdditionalField
+                        key="app"
+                        value="bank-transaction-platform"/>
+                <EventTemplateAdditionalField
+                        key="traceId"
+                        value="${ctx:traceId}"/>
+                <EventTemplateAdditionalField
+                        key="method"
+                        value="${ctx:method}"/>
+                <EventTemplateAdditionalField
+                        key="path"
+                        value="${ctx:path}"/>
+                <EventTemplateAdditionalField
+                        key="status"
+                        value="${ctx:status}"/>
+                <EventTemplateAdditionalField
+                        key="durationMs"
+                        value="${ctx:durationMs}"/>
+                <EventTemplateAdditionalField
+                        key="ip"
+                        value="${ctx:ip}"/>
+            </JsonTemplateLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="7"/>
+        </RollingFile>
+
+        <!-- File output for Filebeat (strict JSON format) -->
+        <RollingFile name="FILE"
+                 fileName="logs/account-service.log"
+                 filePattern="logs/account-service.%d{yyyy-MM-dd}.log">
+            <JsonLayout compact="true"
+                eventEol="true"
+                properties="true"
+                stacktraceAsString="true"/>
+            <Policies>
+            <TimeBasedTriggeringPolicy/>
             </Policies>
             <DefaultRolloverStrategy max="7"/>
         </RollingFile>
