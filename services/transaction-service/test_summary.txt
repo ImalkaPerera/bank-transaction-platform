@@ -1,0 +1,39 @@
+
+target\surefire-reports\com.bank.transaction_service.TransactionServiceApplic
+ationTests.txt:2:Test set: 
+com.bank.transaction_service.TransactionServiceApplicationTests
+target\surefire-reports\com.bank.transaction_service.TransactionServiceApplic
+ationTests.txt:4:Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time 
+elapsed: 0.906 s <<< FAILURE! -- in 
+com.bank.transaction_service.TransactionServiceApplicationTests
+target\surefire-reports\com.bank.transaction_service.TransactionServiceApplic
+ationTests.txt:5:com.bank.transaction_service.TransactionServiceApplicationTe
+sts.contextLoads -- Time elapsed: 0.023 s <<< ERROR!
+target\surefire-reports\com.bank.transaction_service.TransactionServiceApplic
+ationTests.txt:6:java.lang.IllegalStateException: Failed to load 
+ApplicationContext for [WebMergedContextConfiguration@5851bd4f testClass = 
+com.bank.transaction_service.TransactionServiceApplicationTests, locations = 
+[], classes = [com.bank.transaction_service.TransactionServiceApplication], 
+contextInitializerClasses = [], activeProfiles = [], 
+propertySourceDescriptors = [], propertySourceProperties = ["org.springframew
+ork.boot.test.context.SpringBootTestContextBootstrapper=true"], 
+contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFil
+terContextCustomizer@2fb0623e, org.springframework.boot.test.json.DuplicateJs
+onObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@311bf05
+5, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org
+.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@769a1
+df5, org.springframework.boot.test.web.reactor.netty.DisableReactorResourceFa
+ctoryGlobalResourcesContextCustomizerFactory$DisableReactorResourceFactoryGlo
+balResourcesContextCustomizerCustomizer@61710c6, org.springframework.boot.tes
+t.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureCon
+ditionReportContextCustomizer@4a07d605, org.springframework.boot.test.autocon
+figure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObs
+ervabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.p
+roperties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.a
+utoconfigure.web.servlet.WebDriverContextCustomizer@18ece7f4, org.springframe
+work.test.context.support.DynamicPropertiesContextCustomizer@0, 
+org.springframework.boot.test.context.SpringBootTestAnnotation@ffbc68c1], 
+resourceBasePath = "src/main/webapp", contextLoader = 
+org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+
+
