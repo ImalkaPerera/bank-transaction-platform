@@ -1,22 +1,26 @@
 version: '3.8'
 
+# ======================== ELK Stack for Banking Platform ========================
+# This setup includes Elasticsearch, Kibana, Logstash, Filebeat, and a Setup container.
+
 services:
 
+  # 1. Elasticsearch: The search and analytics engine where logs are stored.
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: elasticsearch
     environment:
       - node.name=es-node
       - cluster.name=bank-elk-cluster
-      - discovery.type=single-node
-      - xpack.security.enabled=true
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - discovery.type=single-node             # Run as a single node (not a cluster)
+      - xpack.security.enabled=true            # Enable security features
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}  # Set the admin password from .env
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g             # Memory limits for Elasticsearch
     volumes:
-      - es_data:/usr/share/elasticsearch/data
+      - es_data:/usr/share/elasticsearch/data  # Persistent storage for indices
       - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
-      - "9200:9200"
+      - "9200:9200"                            # REST API port
     networks:
       - elk
     healthcheck:
@@ -25,6 +29,7 @@ services:
       timeout: 10s
       retries: 5
 
+  # 2. Kibana: The web interface for visualizing and managing logs.
   kibana:
     image: docker.elastic.co/kibana/kibana:8.12.0
     container_name: kibana
@@ -37,7 +42,7 @@ services:
     volumes:
       - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
-      - "5601:5601"
+      - "5601:5601"                            # Web interface port
     networks:
       - elk
     healthcheck:
@@ -46,37 +51,60 @@ services:
       timeout: 10s
       retries: 5
 
+  # 3. Logstash: Processes and transforms logs before sending them to Elasticsearch.
   logstash:
     image: docker.elastic.co/logstash/logstash:8.12.0
     container_name: logstash
     depends_on:
       - elasticsearch
     volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/pipeline:/usr/share/logstash/pipeline # Logstash configuration folder
     environment:
       - LS_JAVA_OPTS=-Xms512m -Xmx512m
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     ports:
-      - "5044:5044"
+      - "5044:5044"                            # Beats input port
     networks:
       - elk
 
+  # 4. Filebeat: Collects logs from the application and ships them to Logstash.
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.12.0
     container_name: filebeat
-    user: root
+    user: root                                 # Required to read log files with root permissions
     command: filebeat -e --strict.perms=false
     depends_on:
       - logstash
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ../services/account-service/logs:/var/log/app
+      - ../services/account-service/logs:/var/log/app         # Source log directory
     networks:
       - elk
 
+  # 5. Setup: Automates one-time configurations (like Log Retention Policies).
+  setup:
+    image: alpine:latest
+    container_name: elk-setup
+    depends_on:
+      elasticsearch:
+        condition: service_healthy             # Only run after ES is fully up
+    volumes:
+      - ./elasticsearch/setup-ilm.sh:/setup-ilm.sh:ro
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    command: >
+      sh -c "
+        apk add --no-cache curl bash &&
+        bash /setup-ilm.sh
+      "
+    networks:
+      - elk
+
+# Persistence: Define a volume so Elasticsearch data isn't lost when containers stop.
 volumes:
   es_data:
 
+# Networking: Create a shared network so all containers can talk to each other.
 networks:
   elk:
-    driver: bridge
+    driver: bridge
