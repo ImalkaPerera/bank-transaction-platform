@@ -45,6 +45,7 @@ public class AccountService {
         Account account = accounts.get(id);
 
         if (account == null) {
+            log.warn("Account lookup failed for id: {}", id);
             log.error("Account not found with id: {}", id);
             throw new RuntimeException("Account not found with id: " + id);
         }
@@ -67,6 +68,7 @@ public class AccountService {
         Account account = accounts.get(id);
 
         if (account == null) {
+            log.warn("Balance lookup failed for id: {}", id);
             log.error("Account not found for balance check, id: {}", id);
             throw new RuntimeException("Account not found with id: " + id);
         }
