@@ -4,9 +4,9 @@
 filebeat.inputs:
   - type: log
     enabled: true
-    # Watch for all .log files in this directory (mapped from the host)
+    # Watch for all .log files in all service subdirectories
     paths:
-      - /var/log/app/*.log
+      - /var/log/app/**/*.log
     
     # Since our Spring Boot apps output JSON logs, parse them natively
     json.keys_under_root: true

@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # --- ELK STACK ---
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch
+    environment:
+      - node.name=es-node
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+      - ./elk/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200"
+    networks:
+      - bank-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    container_name: kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+    volumes:
+      - ./elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - "5601:5601"
+    networks:
+      - bank-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
+    container_name: logstash
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline
+    environment:
+      - LS_JAVA_OPTS=-Xms512m -Xmx512m
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    ports:
+      - "5044:5044"
+    networks:
+      - bank-network
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    container_name: filebeat
+    user: root
+    command: filebeat -e --strict.perms=false
+    depends_on:
+      - logstash
+    volumes:
+      - ./elk/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./services/account-service/logs:/var/log/app/account-service
+      - ./services/transaction-service/logs:/var/log/app/transaction-service
+      - ./services/gateway-service/logs:/var/log/app/gateway-service
+      - filebeat_data:/usr/share/filebeat/data
+    networks:
+      - bank-network
+
+  # --- BACKEND SERVICES ---
+  gateway-service:
+    build:
+      context: .
+      dockerfile: services/gateway-service/Dockerfile
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      - ACCOUNT_SERVICE_URL=http://account-service:8081
+      - TRANSACTION_SERVICE_URL=http://transaction-service:8082
+    depends_on:
+      - account-service
+      - transaction-service
+    networks:
+      - bank-network
+
+  account-service:
+    build:
+      context: .
+      dockerfile: services/account-service/Dockerfile
+    container_name: account-service
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./services/account-service/logs:/app/logs
+    networks:
+      - bank-network
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: services/transaction-service/Dockerfile
+    container_name: transaction-service
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./services/transaction-service/logs:/app/logs
+    networks:
+      - bank-network
+
+volumes:
+  es_data:
+  filebeat_data:
+
+networks:
+  bank-network:
+    driver: bridge
