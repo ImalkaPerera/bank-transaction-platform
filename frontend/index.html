@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Transaction Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        header {
+            background-color: #1a237e;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header h1 { font-size: 22px; }
+        header span { font-size: 13px; opacity: 0.7; }
+
+        nav {
+            background-color: #283593;
+            display: flex;
+            gap: 5px;
+            padding: 0 30px;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0.7;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav button:hover,
+        nav button.active {
+            opacity: 1;
+            border-bottom: 3px solid #64b5f6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #1a237e;
+            border-bottom: 2px solid #e8eaf6;
+            padding-bottom: 10px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #1a237e;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary { background-color: #1a237e; color: white; }
+        .btn-primary:hover { background-color: #283593; }
+        .btn-success { background-color: #2e7d32; color: white; }
+        .btn-success:hover { background-color: #388e3c; }
+        .btn-danger { background-color: #c62828; color: white; }
+        .btn-danger:hover { background-color: #d32f2f; }
+        .btn-warning { background-color: #f57f17; color: white; }
+        .btn-warning:hover { background-color: #f9a825; }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            color: #2e7d32;
+        }
+
+        .alert-error {
+            background-color: #ffebee;
+            border: 1px solid #ef9a9a;
+            color: #c62828;
+        }
+
+        .alert-warning {
+            background-color: #fff8e1;
+            border: 1px solid #ffe082;
+            color: #f57f17;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background-color: #e8eaf6;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        table tr:hover { background-color: #f5f5f5; }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-success { background-color: #e8f5e9; color: #2e7d32; }
+        .badge-error { background-color: #ffebee; color: #c62828; }
+        .badge-pending { background-color: #fff8e1; color: #f57f17; }
+
+        .result-box {
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .result-box p { margin-bottom: 8px; }
+        .result-box strong { color: #1a237e; }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* Error test buttons grid */
+        .error-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .error-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .error-btn .label {
+            font-size: 12px;
+            font-weight: normal;
+            opacity: 0.8;
+            display: block;
+            margin-top: 3px;
+        }
+
+        /* Log console */
+        .log-console {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .log-console .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .log-console .log-success { color: #4ec9b0; }
+        .log-console .log-error { color: #f44747; }
+        .log-console .log-warning { color: #dcdcaa; }
+        .log-console .log-info { color: #9cdcfe; }
+        .log-console .timestamp { color: #858585; margin-right: 8px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>🏦</div>
+    <div>
+        <h1>Bank Transaction Platform</h1>
+        <span>Microservices Demo</span>
+    </div>
+</header>
+
+<nav>
+    <button class="active" onclick="showPage('accounts', this)">Accounts</button>
+    <button onclick="showPage('transactions', this)">Transactions</button>
+    <button onclick="showPage('history', this)">History</button>
+    <button onclick="showPage('testing', this)">🧪 Error Testing</button>
+</nav>
+
+<div class="container">
+
+    <!-- ===== ACCOUNTS PAGE ===== -->
+    <div id="page-accounts" class="page active">
+
+        <div class="card">
+            <h2>➕ Create New Account</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Owner Name</label>
+                    <input type="text" id="ownerName" placeholder="John Doe"/>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="john@bank.com"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Initial Balance ($)</label>
+                <input type="number" id="initialBalance" placeholder="1000.00"/>
+            </div>
+            <button class="btn btn-primary" onclick="createAccount()">
+                Create Account
+            </button>
+            <div id="create-account-alert" class="alert"></div>
+            <div id="create-account-result" class="result-box"></div>
+        </div>
+
+        <div class="card">
+            <h2>💰 Check Balance</h2>
+            <div class="form-group">
+                <label>Account ID</label>
+                <input type="text" id="balanceAccountId" placeholder="Enter account ID"/>
+            </div>
+            <button class="btn btn-primary" onclick="checkBalance()">
+                Check Balance
+            </button>
+            <div id="balance-alert" class="alert"></div>
+            <div id="balance-result" class="result-box"></div>
+        </div>
+
+    </div>
+
+    <!-- ===== TRANSACTIONS PAGE ===== -->
+    <div id="page-transactions" class="page">
+
+        <div class="card">
+            <h2>💸 Create Transaction</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>From Account ID</label>
+                    <input type="text" id="fromAccountId" placeholder="acc-001"/>
+                </div>
+                <div class="form-group">
+                    <label>To Account ID</label>
+                    <input type="text" id="toAccountId" placeholder="acc-002"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="amount" placeholder="500.00"/>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="transactionType">
+                        <option value="TRANSFER">Transfer</option>
+                        <option value="DEPOSIT">Deposit</option>
+                        <option value="WITHDRAWAL">Withdrawal</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="description" placeholder="Payment for services"/>
+            </div>
+            <button class="btn btn-success" onclick="createTransaction()">
+                💸 Send Money
+            </button>
+            <div id="create-transaction-alert" class="alert"></div>
+            <div id="create-transaction-result" class="result-box"></div>
+        </div>
+
+    </div>
+
+    <!-- ===== HISTORY PAGE ===== -->
+    <div id="page-history" class="page">
+
+        <div class="card">
+            <h2>📋 Transaction History</h2>
+            <button class="btn btn-primary"
+                    onclick="loadHistory()"
+                    style="margin-bottom:15px">
+                🔄 Refresh
+            </button>
+            <div id="history-alert" class="alert"></div>
+            <div id="history-table">
+                <div class="empty-state">Click Refresh to load transactions</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== ERROR TESTING PAGE ===== -->
+    <div id="page-testing" class="page">
+
+        <div class="card">
+            <h2>🔴 Account Service Errors</h2>
+            <div class="error-grid">
+
+                <button class="error-btn btn-danger"
+                        onclick="testError('account-not-found')">
+                    ❌ Account Not Found
+                    <span class="label">GET /accounts/invalid-id-999</span>
+                </button>
+
+                <button class="error-btn btn-danger"
+                        onclick="testError('account-not-found-2')">
+                    ❌ Account Not Found 2
+                    <span class="label">GET /accounts/fake-account-abc</span>
+                </button>
+
+                <button class="error-btn btn-warning"
+                        onclick="testError('check-invalid-balance')">
+                    ⚠️ Balance Check Error
+                    <span class="label">GET /accounts/invalid/balance</span>
+                </button>
+
+                <button class="error-btn btn-success"
+                        onclick="testError('create-valid-account')">
+                    ✅ Valid Account
+                    <span class="label">POST /accounts (success)</span>
+                </button>
+
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔴 Transaction Service Errors</h2>
+            <div class="error-grid">
+
+                <button class="error-btn btn-danger"
+                        onclick="testError('transaction-not-found')">
+                    ❌ Transaction Not Found
+                    <span class="label">GET /transactions/invalid-id-999</span>
+                </button>
+
+                <button class="error-btn btn-danger"
+                        onclick="testError('zero-amount')">
+                    ❌ Zero Amount
+                    <span class="label">POST /transactions amount=0</span>
+                </button>
+
+                <button class="error-btn btn-danger"
+                        onclick="testError('negative-amount')">
+                    ❌ Negative Amount
+                    <span class="label">POST /transactions amount=-100</span>
+                </button>
+
+                <button class="error-btn btn-warning"
+                        onclick="testError('large-transaction')">
+                    ⚠️ Large Transaction (WARN)
+                    <span class="label">POST /transactions amount=50000</span>
+                </button>
+
+                <button class="error-btn btn-success"
+                        onclick="testError('valid-transaction')">
+                    ✅ Valid Transaction
+                    <span class="label">POST /transactions (success)</span>
+                </button>
+
+                <button class="error-btn btn-warning"
+                        onclick="testError('bulk-errors')">
+                    🔥 Generate Bulk Errors
+                    <span class="label">Send 5 errors at once</span>
+                </button>
+
+            </div>
+        </div>
+
+        <!-- Log Console -->
+        <div class="card">
+            <h2>📟 Response Console</h2>
+            <button class="btn btn-danger"
+                    onclick="clearConsole()">
+                🗑️ Clear
+            </button>
+            <div id="log-console" class="log-console">
+                <div class="log-entry log-info">
+                    <span class="timestamp">--:--:--</span>
+                    Console ready. Click buttons above to test errors...
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const GATEWAY_URL = 'http://localhost:8080';
+
+    // ===== NAVIGATION =====
+    function showPage(page, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        btn.classList.add('active');
+        if (page === 'history') loadHistory();
+    }
+
+    // ===== ALERTS =====
+    function showAlert(id, message, type) {
+        const el = document.getElementById(id);
+        el.className = 'alert alert-' + type;
+        el.textContent = message;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 5000);
+    }
+
+    function showResult(id, html) {
+        const el = document.getElementById(id);
+        el.innerHTML = html;
+        el.style.display = 'block';
+    }
+
+    // ===== CONSOLE LOGGING =====
+    function logToConsole(message, type) {
+        const console = document.getElementById('log-console');
+        const time = new Date().toLocaleTimeString();
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        entry.innerHTML = `<span class="timestamp">${time}</span>${message}`;
+        console.appendChild(entry);
+        console.scrollTop = console.scrollHeight;
+    }
+
+    function clearConsole() {
+        document.getElementById('log-console').innerHTML = '';
+    }
+
+    // ===== CREATE ACCOUNT =====
+    async function createAccount() {
+        const ownerName      = document.getElementById('ownerName').value;
+        const email          = document.getElementById('email').value;
+        const initialBalance = document.getElementById('initialBalance').value;
+
+        if (!ownerName || !email || !initialBalance) {
+            showAlert('create-account-alert', 'Please fill all fields', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${GATEWAY_URL}/accounts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ownerName,
+                    email,
+                    initialBalance: parseFloat(initialBalance)
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showAlert('create-account-alert', 'Account created successfully!', 'success');
+                showResult('create-account-result', `
+                    <p><strong>Account ID:</strong> ${data.id}</p>
+                    <p><strong>Owner:</strong> ${data.ownerName}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Balance:</strong> $${data.balance}</p>
+                    <p><strong>Created:</strong> ${new Date(data.createdAt).toLocaleString()}</p>
+                `);
+                document.getElementById('ownerName').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('initialBalance').value = '';
+            } else {
+                showAlert('create-account-alert', data.message || 'Error creating account', 'error');
+            }
+        } catch (error) {
+            showAlert('create-account-alert', 'Cannot connect to server. Is gateway running?', 'error');
+        }
+    }
+
+    // ===== CHECK BALANCE =====
+    async function checkBalance() {
+        const accountId = document.getElementById('balanceAccountId').value;
+
+        if (!accountId) {
+            showAlert('balance-alert', 'Please enter account ID', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${GATEWAY_URL}/accounts/${accountId}/balance`);
+            const data = await response.json();
+
+            if (response.ok) {
+                showResult('balance-result', `
+                    <p><strong>Account ID:</strong> ${data.accountId}</p>
+                    <p><strong>Balance:</strong> $${data.balance}</p>
+                `);
+            } else {
+                showAlert('balance-alert', data.message || 'Account not found', 'error');
+            }
+        } catch (error) {
+            showAlert('balance-alert', 'Cannot connect to server', 'error');
+        }
+    }
+
+    // ===== CREATE TRANSACTION =====
+    async function createTransaction() {
+        const fromAccountId = document.getElementById('fromAccountId').value;
+        const toAccountId   = document.getElementById('toAccountId').value;
+        const amount        = document.getElementById('amount').value;
+        const type          = document.getElementById('transactionType').value;
+        const description   = document.getElementById('description').value;
+
+        if (!fromAccountId || !toAccountId || !amount) {
+            showAlert('create-transaction-alert', 'Please fill all required fields', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${GATEWAY_URL}/transactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fromAccountId,
+                    toAccountId,
+                    amount: parseFloat(amount),
+                    type,
+                    description
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showAlert('create-transaction-alert', 'Transaction successful!', 'success');
+                showResult('create-transaction-result', `
+                    <p><strong>Transaction ID:</strong> ${data.id}</p>
+                    <p><strong>From:</strong> ${data.fromAccountId}</p>
+                    <p><strong>To:</strong> ${data.toAccountId}</p>
+                    <p><strong>Amount:</strong> $${data.amount}</p>
+                    <p><strong>Type:</strong> ${data.type}</p>
+                    <p><strong>Status:</strong> ${data.status}</p>
+                `);
+                document.getElementById('fromAccountId').value = '';
+                document.getElementById('toAccountId').value = '';
+                document.getElementById('amount').value = '';
+                document.getElementById('description').value = '';
+            } else {
+                showAlert('create-transaction-alert', data.message || 'Transaction failed', 'error');
+            }
+        } catch (error) {
+            showAlert('create-transaction-alert', 'Cannot connect to server', 'error');
+        }
+    }
+
+    // ===== LOAD HISTORY =====
+    async function loadHistory() {
+        try {
+            const response = await fetch(`${GATEWAY_URL}/transactions/history`);
+            const data = await response.json();
+
+            if (data.length === 0) {
+                document.getElementById('history-table').innerHTML =
+                    '<div class="empty-state">No transactions found</div>';
+                return;
+            }
+
+            let rows = data.map(t => `
+                <tr>
+                    <td>${t.id.substring(0, 8)}...</td>
+                    <td>${t.fromAccountId}</td>
+                    <td>${t.toAccountId}</td>
+                    <td>$${t.amount}</td>
+                    <td>${t.type}</td>
+                    <td>
+                        <span class="badge badge-${t.status === 'SUCCESS'
+                            ? 'success' : t.status === 'FAILED'
+                            ? 'error' : 'pending'}">
+                            ${t.status}
+                        </span>
+                    </td>
+                    <td>${new Date(t.createdAt).toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('history-table').innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        } catch (error) {
+            showAlert('history-alert', 'Cannot connect to server', 'error');
+        }
+    }
+
+    // ===== ERROR TESTING =====
+    async function testError(type) {
+        logToConsole(`Testing: ${type}...`, 'info');
+
+        try {
+            let response, data, method = 'GET', url = '', body = null;
+
+            switch(type) {
+
+                // Account errors
+                case 'account-not-found':
+                    url = `${GATEWAY_URL}/accounts/invalid-id-999`;
+                    break;
+
+                case 'account-not-found-2':
+                    url = `${GATEWAY_URL}/accounts/fake-account-abc`;
+                    break;
+
+                case 'check-invalid-balance':
+                    url = `${GATEWAY_URL}/accounts/invalid/balance`;
+                    break;
+
+                case 'create-valid-account':
+                    method = 'POST';
+                    url = `${GATEWAY_URL}/accounts`;
+                    body = JSON.stringify({
+                        ownerName: 'Test User',
+                        email: 'test@bank.com',
+                        initialBalance: 1000
+                    });
+                    break;
+
+                // Transaction errors
+                case 'transaction-not-found':
+                    url = `${GATEWAY_URL}/transactions/invalid-id-999`;
+                    break;
+
+                case 'zero-amount':
+                    method = 'POST';
+                    url = `${GATEWAY_URL}/transactions`;
+                    body = JSON.stringify({
+                        fromAccountId: 'acc-001',
+                        toAccountId: 'acc-002',
+                        amount: 0,
+                        type: 'TRANSFER',
+                        description: 'Zero amount test'
+                    });
+                    break;
+
+                case 'negative-amount':
+                    method = 'POST';
+                    url = `${GATEWAY_URL}/transactions`;
+                    body = JSON.stringify({
+                        fromAccountId: 'acc-001',
+                        toAccountId: 'acc-002',
+                        amount: -100,
+                        type: 'TRANSFER',
+                        description: 'Negative amount test'
+                    });
+                    break;
+
+                case 'large-transaction':
+                    method = 'POST';
+                    url = `${GATEWAY_URL}/transactions`;
+                    body = JSON.stringify({
+                        fromAccountId: 'acc-001',
+                        toAccountId: 'acc-002',
+                        amount: 50000,
+                        type: 'TRANSFER',
+                        description: 'Large transaction warning test'
+                    });
+                    break;
+
+                case 'valid-transaction':
+                    method = 'POST';
+                    url = `${GATEWAY_URL}/transactions`;
+                    body = JSON.stringify({
+                        fromAccountId: 'acc-001',
+                        toAccountId: 'acc-002',
+                        amount: 500,
+                        type: 'TRANSFER',
+                        description: 'Valid transaction test'
+                    });
+                    break;
+
+                case 'bulk-errors':
+                    await bulkErrors();
+                    return;
+            }
+
+            // Make request
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = body;
+
+            response = await fetch(url, options);
+            data = await response.json();
+
+            // Log result
+            if (response.ok) {
+                logToConsole(
+                    `✅ ${method} ${url.replace(GATEWAY_URL,'')} → ${response.status} | ${JSON.stringify(data).substring(0,80)}...`,
+                    'success'
+                );
+            } else {
+                logToConsole(
+                    `❌ ${method} ${url.replace(GATEWAY_URL,'')} → ${response.status} | ${data.message}`,
+                    'error'
+                );
+            }
+
+        } catch (error) {
+            logToConsole(`🔌 Connection failed: ${error.message}`, 'error');
+        }
+    }
+
+    // ===== BULK ERRORS =====
+    async function bulkErrors() {
+        logToConsole('🔥 Sending bulk errors...', 'warning');
+
+        const errors = [
+            'account-not-found',
+            'account-not-found-2',
+            'transaction-not-found',
+            'zero-amount',
+            'negative-amount'
+        ];
+
+        for (const error of errors) {
+            await testError(error);
+            await new Promise(r => setTimeout(r, 300));
+        }
+
+        logToConsole('🔥 Bulk errors complete! Check Kibana!', 'warning');
+    }
+</script>
+
+</body>
+</html>
