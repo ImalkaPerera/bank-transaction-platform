@@ -3,15 +3,17 @@ package com.bank.account_service.service;
 import com.bank.account_service.model.Account;
 import com.bank.account_service.model.AccountResponse;
 import com.bank.account_service.model.CreateAccountRequest;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 @Service
 public class AccountService {
+
+    private static final Logger log = LoggerFactory.getLogger("AccountService");
 
     // In-memory storage (no database yet)
     private final Map<String, Account> accounts = new HashMap<>();

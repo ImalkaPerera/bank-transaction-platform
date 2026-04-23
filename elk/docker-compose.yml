@@ -78,6 +78,7 @@ services:
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - ../services/account-service/logs:/var/log/app         # Source log directory
+      - filebeat_data:/usr/share/filebeat/data                # Persist Filebeat registry data
     networks:
       - elk
 
@@ -104,7 +105,10 @@ services:
 volumes:
   es_data:
 
+  # Persistence for Filebeat registry data
+  filebeat_data:
+
 # Networking: Create a shared network so all containers can talk to each other.
 networks:
   elk:
-    driver: bridge
+    driver: bridge
