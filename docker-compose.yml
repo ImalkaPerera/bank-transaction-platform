@@ -115,6 +115,16 @@ services:
     networks:
       - bank-network
 
+  frontend:
+    image: nginx:alpine
+    container_name: bank-frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    networks:
+      - bank-network
+
 volumes:
   es_data:
   filebeat_data:
