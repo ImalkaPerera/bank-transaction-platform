@@ -26,9 +26,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
 @Slf4j
 @Component
 public class LoggingFilter extends OncePerRequestFilter {
+
+    @Value("${spring.application.name:unknown-service}")
+    private String applicationName;
 
     // This method runs for every HTTP request
     @Override
@@ -42,6 +51,9 @@ public class LoggingFilter extends OncePerRequestFilter {
         try {
             // Generate a unique traceId for this request
             String traceId = MDCUtil.generateTraceId();
+
+            // Set the service name in the logging context
+            MDCUtil.set(MDCUtil.SERVICE, applicationName);
 
             // Add method, path, and IP to the logging context
             MDCUtil.set(MDCUtil.METHOD, request.getMethod());
