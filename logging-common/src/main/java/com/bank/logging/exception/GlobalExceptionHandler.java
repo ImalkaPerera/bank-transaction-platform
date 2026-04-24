@@ -52,15 +52,21 @@ public class GlobalExceptionHandler {
         MDC.put("error.message", ex.getMessage()); // Technical detail
         MDC.put("http.status", String.valueOf(status.value()));
 
-        // Capture the path to find the "automatic" 404 source
+        // Capture the path and duration for the error log
         try {
+            String startTimeStr = MDC.get("request.start_time");
+            if (startTimeStr != null) {
+                long duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
+                MDC.put("http.responseTimeMs", String.valueOf(duration));
+            }
+
             org.springframework.web.context.request.RequestAttributes attrs = 
                 org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
             if (attrs instanceof org.springframework.web.context.request.ServletRequestAttributes servletAttrs) {
                 MDC.put("http.path", servletAttrs.getRequest().getRequestURI());
             }
         } catch (Exception e) {
-            // Ignore if not in a servlet context (e.g. Gateway/WebFlux)
+            // Ignore if not in a servlet context
         }
 
         // Semantic, clean log message (using the high-level summary)

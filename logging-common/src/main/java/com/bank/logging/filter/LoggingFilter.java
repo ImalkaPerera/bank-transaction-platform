@@ -56,14 +56,14 @@ public class LoggingFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         long startTime = System.currentTimeMillis();
-        
+        MDC.put("request.start_time", String.valueOf(startTime));
+
         MDC.put(SERVICE, applicationName);
         MDC.put(HTTP_METHOD, request.getMethod());
-        MDC.put(HTTP_PATH, request.getRequestURI());
         MDC.put(ENV, System.getenv().getOrDefault("APP_ENV", "production"));
 
         String clientIp = request.getHeader("X-Forwarded-For");
-        if (clientIp != null && !clientIp.isBlank()) {
+        if (clientIp != null && !clientIp.isEmpty()) {
             clientIp = clientIp.split(",")[0].trim();
         } else {
             clientIp = request.getRemoteAddr();
