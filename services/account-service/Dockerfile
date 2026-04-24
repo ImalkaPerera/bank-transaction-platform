@@ -8,12 +8,12 @@ WORKDIR /app
 # Copy and build logging-common first (from root context)
 COPY logging-common /app/logging-common
 WORKDIR /app/logging-common
-RUN mvn clean install -DskipTests
+RUN mvn clean install -Dmaven.test.skip=true
 
 # Copy and build account-service
 WORKDIR /app/services/account-service
 COPY services/account-service /app/services/account-service
-RUN mvn clean package -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app

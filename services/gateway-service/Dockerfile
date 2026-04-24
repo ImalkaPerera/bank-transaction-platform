@@ -8,12 +8,12 @@ WORKDIR /app
 # Build logging-common first so it is available in the local Maven cache
 COPY logging-common /app/logging-common
 WORKDIR /app/logging-common
-RUN mvn clean install -DskipTests
+RUN mvn clean install -Dmaven.test.skip=true
 
 # Copy and build gateway-service
 WORKDIR /app/services/gateway-service
 COPY services/gateway-service /app/services/gateway-service
-RUN mvn clean package -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
