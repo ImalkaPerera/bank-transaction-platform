@@ -21,11 +21,11 @@
             <includeContext>false</includeContext>
             <fieldNames>
                 <timestamp>[ignore]</timestamp>
-                <threadName>[ignore]</threadName>
-                <version>[ignore]</version>
+                <thread>[ignore]</thread>
                 <levelValue>[ignore]</levelValue>
+                <version>[ignore]</version>
             </fieldNames>
-            <customFields>{"service":"account-service"}</customFields>
+            <!-- Service is already provided by LoggingFilter MDC -->
         </encoder>
     </appender>
 
