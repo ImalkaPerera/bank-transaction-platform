@@ -30,4 +30,4 @@ setup.template.name: "bank-logs"
 setup.template.pattern: "bank-logs-*"
 setup.ilm.enabled: false
 
-logging.level: info
+logging.level: debug
