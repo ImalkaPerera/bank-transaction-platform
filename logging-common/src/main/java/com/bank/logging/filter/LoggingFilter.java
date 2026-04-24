@@ -79,13 +79,18 @@ public class LoggingFilter extends OncePerRequestFilter {
         } finally {
             long duration = System.currentTimeMillis() - startTime;
             
+            // Capture normalized path (e.g., /accounts/{id}) if available
+            String pattern = (String) request.getAttribute("org.springframework.web.servlet.HandlerMapping.bestMatchingPattern");
+            String path = (pattern != null) ? pattern : request.getRequestURI();
+
+            MDC.put(HTTP_PATH, path);
             MDC.put(HTTP_STATUS, String.valueOf(response.getStatus()));
             MDC.put(HTTP_DURATION, String.valueOf(duration));
 
             // Single log entry per request with all metadata
             log.info("Request completed: {} {} - Status: {} in {}ms",
                     request.getMethod(),
-                    request.getRequestURI(),
+                    path,
                     response.getStatus(),
                     duration);
 

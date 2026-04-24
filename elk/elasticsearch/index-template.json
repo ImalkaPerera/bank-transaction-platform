@@ -29,7 +29,7 @@
             "message":  { "type": "text" },
             "stack":    { 
               "type": "text",
-              "index": true
+              "index": false
             }
           }
         }

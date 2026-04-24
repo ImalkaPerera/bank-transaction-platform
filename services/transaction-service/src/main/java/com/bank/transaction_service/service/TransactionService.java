@@ -1,6 +1,8 @@
 package com.bank.transaction_service.service;
 
 import com.bank.transaction_service.model.*;
+import com.bank.transaction_service.exception.InvalidTransactionAmountException;
+import com.bank.transaction_service.exception.TransactionNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,8 +29,7 @@ public class TransactionService {
 
         // Validate amount
         if (request.getAmount() <= 0) {
-            log.error("Invalid amount: {}", request.getAmount());
-            throw new RuntimeException("Amount must be greater than zero");
+            throw new InvalidTransactionAmountException(request.getAmount());
         }
 
         // Create transaction
@@ -59,8 +60,7 @@ public class TransactionService {
         Transaction transaction = transactions.get(id);
 
         if (transaction == null) {
-            log.error("Transaction not found with id: {}", id);
-            throw new RuntimeException("Transaction not found with id: " + id);
+            throw new TransactionNotFoundException(id);
         }
 
         log.info("Transaction found: {} status: {}",

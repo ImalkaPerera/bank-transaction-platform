@@ -20,41 +20,41 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
-        // Classify the error
+        // Default classification
         String type = ex.getClass().getSimpleName();
-        String category = classifyCategory(ex);
-        String severity = classifySeverity(ex);
+        String category = "SYSTEM";
+        String severity = "HIGH";
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String clientMessage = "An unexpected error occurred";
+        String logMessage = "Request failed";
+
+        // Extract metadata from semantic exceptions
+        if (ex instanceof BaseException baseEx) {
+            category = baseEx.getCategory();
+            severity = baseEx.getSeverity();
+            status = baseEx.getStatus();
+            clientMessage = baseEx.getMessage();
+            logMessage = baseEx.getLogMessage();
+        }
 
         // Put metadata in MDC for the ELK pipeline
         MDC.put("error.type", type);
         MDC.put("error.category", category);
         MDC.put("error.severity", severity);
+        MDC.put("error.message", ex.getMessage()); // Technical detail
+        MDC.put("http.status", String.valueOf(status.value()));
         
-        log.error("Request failed - [{}]: {}", type, ex.getMessage(), ex);
+        // Semantic, clean log message (using the high-level summary)
+        log.error("{}: {}", logMessage, ex.getMessage(), ex);
 
         ErrorResponse error = ErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("An unexpected error occurred") // Don't leak internals to client
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(clientMessage)
                 .type(type)
                 .build();
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private String classifyCategory(Exception ex) {
-        String name = ex.getClass().getName();
-        if (name.contains("IllegalArgument") || name.contains("Constraint") || name.contains("Validation")) {
-            return "BUSINESS";
-        }
-        return "SYSTEM";
-    }
-
-    private String classifySeverity(Exception ex) {
-        if (classifyCategory(ex).equals("BUSINESS")) {
-            return "LOW";
-        }
-        return "HIGH";
+        return new ResponseEntity<>(error, status);
     }
 
     @Getter
