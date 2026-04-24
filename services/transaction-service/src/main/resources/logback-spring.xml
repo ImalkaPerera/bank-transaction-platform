@@ -12,7 +12,6 @@
 
     <appender name="JSON_FILE" class="ch.qos.logback.core.FileAppender">
         <file>/var/log/app/transaction-service.log</file>
-        <immediateFlush>true</immediateFlush>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
         </filter>
@@ -21,10 +20,10 @@
             <includeThreadName>false</includeThreadName>
             <includeContext>false</includeContext>
             <fieldNames>
-                <timestamp>[ignore]</timestamp> 
-                <level>level</level>
-                <message>message</message>
-                <logger>logger</logger>
+                <timestamp>[ignore]</timestamp>
+                <threadName>[ignore]</threadName>
+                <version>[ignore]</version>
+                <levelValue>[ignore]</levelValue>
             </fieldNames>
             <customFields>{"service":"transaction-service"}</customFields>
         </encoder>
