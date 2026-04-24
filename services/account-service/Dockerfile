@@ -16,6 +16,7 @@ COPY services/account-service /app/services/account-service
 RUN mvn clean package -Dmaven.test.skip=true
 
 FROM eclipse-temurin:17-jre-alpine
+RUN apk add --no-cache curl
 WORKDIR /app
 COPY --from=build /app/services/account-service/target/*.jar app.jar
 EXPOSE 8081
