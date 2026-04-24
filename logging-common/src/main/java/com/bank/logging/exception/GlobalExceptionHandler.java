@@ -17,28 +17,48 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
-        MDC.put("exceptionType", ex.getClass().getSimpleName());
-        log.error("Unhandled exception occurred: {}", ex.getMessage(), ex);
-        MDC.remove("exceptionType");
+        // Classify the error
+        String type = ex.getClass().getSimpleName();
+        String category = classifyCategory(ex);
+        String severity = classifySeverity(ex);
+
+        MDC.put("error.type", type);
+        MDC.put("error.category", category);
+        MDC.put("error.severity", severity);
+        
+        log.error("Request failed - [{}]: {}", type, ex.getMessage(), ex);
 
         ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message(ex.getMessage())
-                .exception(ex.getClass().getName())
+                .message("An unexpected error occurred") // Don't leak internals to client
+                .type(type)
                 .build();
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    private String classifyCategory(Exception ex) {
+        String name = ex.getClass().getName();
+        if (name.contains("IllegalArgument") || name.contains("Constraint") || name.contains("Validation")) {
+            return "BUSINESS";
+        }
+        return "SYSTEM";
+    }
+
+    private String classifySeverity(Exception ex) {
+        if (classifyCategory(ex).equals("BUSINESS")) {
+            return "LOW";
+        }
+        return "HIGH";
+    }
+
     @Getter
     @Builder
     public static class ErrorResponse {
-        private LocalDateTime timestamp;
         private int status;
         private String error;
         private String message;
-        private String exception;
+        private String type;
     }
 }

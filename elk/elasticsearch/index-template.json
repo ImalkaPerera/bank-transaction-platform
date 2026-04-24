@@ -3,27 +3,44 @@
   "template": {
     "mappings": {
       "properties": {
-        "timestamp":     { "type": "date",    "format": "yyyy-MM-dd HH:mm:ss.SSS" },
+        "@timestamp":    { "type": "date" },
         "level":         { "type": "keyword" },
         "service":       { "type": "keyword" },
         "traceId":       { "type": "keyword" },
-        "message":       { "type": "text"    },
-        "method":        { "type": "keyword" },
-        "path":          { "type": "keyword" },
-        "status":        { "type": "integer" },
-        "durationMs":    { "type": "long"    },
-        "clientIp":      { "type": "ip"      },
         "env":           { "type": "keyword" },
-        "exceptionType": { "type": "keyword" },
-        "exception":     { "type": "text"    },
-        "stackTrace":    { "type": "text"    }
+        "message":       { "type": "text" },
+        "logger":        { "type": "keyword" },
+        "http": {
+          "properties": {
+            "method":         { "type": "keyword" },
+            "path":           { "type": "keyword" },
+            "status":         { "type": "integer" },
+            "responseTimeMs": { "type": "long" },
+            "clientIp":       { "type": "ip" }
+          }
+        },
+        "error": {
+          "properties": {
+            "type":     { "type": "keyword" },
+            "category": { "type": "keyword" },
+            "severity": { "type": "keyword" },
+            "message":  { "type": "text" },
+            "stack":    { 
+              "type": "text",
+              "index": true,
+              "norms": false,
+              "doc_values": false
+            }
+          }
+        }
       }
     },
     "settings": {
       "index": {
         "number_of_shards": 1,
         "number_of_replicas": 0,
-        "refresh_interval": "5s"
+        "refresh_interval": "5s",
+        "mapping.ignore_malformed": true
       }
     }
   }
