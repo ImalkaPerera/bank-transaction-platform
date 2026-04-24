@@ -7,6 +7,8 @@ package com.bank.logging.config;
 
 import com.bank.logging.exception.GlobalExceptionHandler;
 import com.bank.logging.filter.LoggingFilter;
+import io.micrometer.tracing.Tracer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,8 +20,9 @@ public class LoggingAutoConfiguration {
 
     // Adds a filter that logs info about every HTTP request.
     @Bean
-    public LoggingFilter loggingFilter() {
-        return new LoggingFilter();
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+    public LoggingFilter loggingFilter(Tracer tracer) {
+        return new LoggingFilter(tracer);
     }
 
     // Adds a handler that logs uncaught exceptions as errors.
