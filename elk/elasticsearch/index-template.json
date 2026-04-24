@@ -1,5 +1,5 @@
 {
-  "index_patterns": ["bank-logs-*"],
+  "index_patterns": ["*bank-logs*"],
   "data_stream": {},
   "priority": 500,
   "template": {
