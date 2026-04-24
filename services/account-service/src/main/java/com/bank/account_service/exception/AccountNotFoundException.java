@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class AccountNotFoundException extends BusinessException {
     public AccountNotFoundException(String id) {
-        super("Account not found with id: " + id, HttpStatus.NOT_FOUND, "MEDIUM");
+        super("Resource not found", "Account not found with id: " + id, HttpStatus.NOT_FOUND, "MEDIUM");
     }
 }

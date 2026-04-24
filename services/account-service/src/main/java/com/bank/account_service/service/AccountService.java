@@ -1,5 +1,6 @@
 package com.bank.account_service.service;
 
+import com.bank.account_service.exception.AccountNotFoundException;
 import com.bank.account_service.model.Account;
 import com.bank.account_service.model.AccountResponse;
 import com.bank.account_service.model.CreateAccountRequest;
@@ -47,9 +48,7 @@ public class AccountService {
         Account account = accounts.get(id);
 
         if (account == null) {
-            log.warn("Account lookup failed for id: {}", id);
-            log.error("Account not found with id: {}", id);
-            throw new RuntimeException("Account not found with id: " + id);
+            throw new AccountNotFoundException(id);
         }
 
         log.info("Account found for owner: {}", account.getOwnerName());
@@ -70,13 +69,11 @@ public class AccountService {
         Account account = accounts.get(id);
 
         if (account == null) {
-            log.warn("Balance lookup failed for id: {}", id);
-            log.error("Account not found for balance check, id: {}", id);
-            throw new RuntimeException("Account not found with id: " + id);
+            throw new AccountNotFoundException(id);
         }
 
         log.info("Balance for account {}: {}", id, account.getBalance());
 
         return account.getBalance();
     }
-}
+}
