@@ -220,16 +220,14 @@ All requests go through → localhost:8080
 ```
 Spring Boot Service
        ↓
-writes to /var/log/app/*.log
+writes to /var/log/app/*.log (LogstashEncoder)
        ↓
 Filebeat watches and ships logs
        ↓
-Logstash receives on port 5044
+Logstash receives on port 5044 (optional processing)
        ↓
-Logstash parses, transforms, enriches
-       ↓
-Elasticsearch stores in daily index
-bank-logs-YYYY.MM.dd
+Elasticsearch stores in Data Stream
+bank-logs (priority 500)
        ↓
 Kibana → search and visualize
 ```
@@ -246,20 +244,28 @@ URL:      http://localhost:9200
 
 ## 📝 How Logging Works
 
-Every log entry automatically includes these fields:
+Every log entry automatically includes these fields (ECS-compliant):
 
 ```json
 {
-  "@timestamp"     : "2026-04-21T10:30:00Z",
+  "@timestamp"     : "2026-04-24T10:30:00Z",
   "service"        : "account-service",
-  "level"          : "INFO",
-  "message"        : "Account created successfully",
+  "level"          : "ERROR",
+  "message"        : "Request failed - [HttpMessageNotReadableException]",
   "traceId"        : "abc-123-xyz",
-  "method"         : "POST",
-  "path"           : "/accounts",
-  "status"         : 200,
-  "durationMs"     : 45,
-  "app"            : "bank-transaction-platform"
+  "logger"         : "com.bank.logging.exception.GlobalExceptionHandler",
+  "http": {
+    "method"       : "POST",
+    "path"         : "/accounts",
+    "status"       : 500,
+    "clientIp"     : "172.18.0.1"
+  },
+  "error": {
+    "type"         : "HttpMessageNotReadableException",
+    "category"     : "SYSTEM",
+    "severity"     : "HIGH",
+    "stack"        : "org.springframework.http.converter..."
+  }
 }
 ```
 
@@ -319,14 +325,15 @@ curl -u elastic:BankAdmin123 http://localhost:9200/bank-logs-*/_search?pretty
 
 ## 🗺️ Roadmap
 
-### Stage 1 — Learning (Current)
+### Stage 1 — Learning (Complete ✅)
 - [x] ELK Stack setup with Docker
-- [ ] account-service (Spring Boot)
-- [ ] transaction-service (Spring Boot)
-- [ ] gateway-service (Spring Cloud Gateway)
-- [ ] logging-common shared library
-- [ ] Connect all services to ELK
-- [ ] Kibana dashboards
+- [x] account-service (Spring Boot)
+- [x] transaction-service (Spring Boot)
+- [x] gateway-service (Spring Cloud Gateway)
+- [x] logging-common shared library
+- [x] Connect all services to ELK
+- [x] Standardized ECS logging with Data Streams
+- [x] Kibana dashboards
 
 ### Stage 2 — Portfolio Ready (Coming Soon)
 - [ ] PostgreSQL database
