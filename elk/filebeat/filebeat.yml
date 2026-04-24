@@ -19,10 +19,6 @@ processors:
   - drop_fields:
       fields: ["agent", "ecs", "input", "log", "host"]
       ignore_missing: true
-  - timestamp:
-      field: timestamp
-      layouts:
-        - 'yyyy-MM-dd HH:mm:ss.SSS'
 
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
