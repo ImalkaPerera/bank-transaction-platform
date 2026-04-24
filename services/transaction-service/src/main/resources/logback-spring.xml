@@ -13,6 +13,9 @@
     <appender name="JSON_FILE" class="ch.qos.logback.core.FileAppender">
         <file>/var/log/app/transaction-service.log</file>
         <immediateFlush>true</immediateFlush>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdc>true</includeMdc>
             <includeThreadName>false</includeThreadName>
