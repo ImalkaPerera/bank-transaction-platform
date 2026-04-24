@@ -107,11 +107,11 @@ services:
     networks:
       - bank-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:8081/actuator/health | grep -q UP || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8081/actuator/health | grep -q UP || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 40s
 
   transaction-service:
     build:
@@ -125,11 +125,11 @@ services:
     networks:
       - bank-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:8082/actuator/health | grep -q UP || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8082/actuator/health | grep -q UP || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 40s
 
   frontend:
     image: nginx:alpine
