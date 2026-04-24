@@ -8,15 +8,20 @@ done
 
 echo "Elasticsearch is up. Applying ILM policy..."
 
-# Create ILM Policy: Delete after 1 day
-curl -X PUT "http://elasticsearch:9200/_ilm/policy/bank_logs_retention_policy" \
-     -u "elastic:${ELASTIC_PASSWORD}" \
+# 1. Create ILM Policy: Keep only 1 day of data
+curl -X PUT "http://elasticsearch:9200/_ilm/policy/bank-logs-policy" \
+     -u "elastic:${ELASTIC_PASSWORD:-BankAdmin123}" \
      -H 'Content-Type: application/json' \
      -d '{
   "policy": {
     "phases": {
       "hot": {
-        "actions": {}
+        "actions": {
+          "rollover": {
+            "max_age": "1d",
+            "max_size": "5gb"
+          }
+        }
       },
       "delete": {
         "min_age": "1d",
@@ -30,17 +35,55 @@ curl -X PUT "http://elasticsearch:9200/_ilm/policy/bank_logs_retention_policy" \
 
 echo -e "\nApplying Index Template..."
 
-# Create Index Template: Apply policy to bank-logs-*
-curl -X PUT "http://elasticsearch:9200/_index_template/bank_logs_template" \
-     -u "elastic:${ELASTIC_PASSWORD}" \
+# 2. Create Index Template: Mappings, Settings, and ILM Link
+curl -X PUT "http://elasticsearch:9200/_index_template/bank-logs" \
+     -u "elastic:${ELASTIC_PASSWORD:-BankAdmin123}" \
      -H 'Content-Type: application/json' \
      -d '{
-  "index_patterns": ["bank-logs-*"],
+  "index_patterns": ["bank-logs*"],
+  "data_stream": {},
+  "priority": 600,
   "template": {
     "settings": {
-      "index.lifecycle.name": "bank_logs_retention_policy"
+      "index.lifecycle.name": "bank-logs-policy",
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "refresh_interval": "5s",
+      "mapping.ignore_malformed": true
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp":    { "type": "date" },
+        "level":         { "type": "keyword" },
+        "service":       { "type": "keyword" },
+        "traceId":       { "type": "keyword" },
+        "env":           { "type": "keyword" },
+        "message":       { "type": "text" },
+        "logger":        { "type": "keyword" },
+        "http": {
+          "properties": {
+            "method":         { "type": "keyword" },
+            "path":           { "type": "keyword" },
+            "status":         { "type": "integer" },
+            "responseTimeMs": { "type": "long" },
+            "clientIp":       { "type": "ip" }
+          }
+        },
+        "error": {
+          "properties": {
+            "type":     { "type": "keyword" },
+            "category": { "type": "keyword" },
+            "severity": { "type": "keyword" },
+            "message":  { "type": "text" },
+            "stack":    { 
+              "type": "text",
+              "index": false
+            }
+          }
+        }
+      }
     }
   }
 }'
 
-echo -e "\nILM Setup Complete!"
+echo -e "\nILM and Index Template Setup Complete!"
