@@ -3,6 +3,7 @@ package com.bank.logging.exception;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,7 +17,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
+        MDC.put("exceptionType", ex.getClass().getSimpleName());
         log.error("Unhandled exception occurred: {}", ex.getMessage(), ex);
+        MDC.remove("exceptionType");
 
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

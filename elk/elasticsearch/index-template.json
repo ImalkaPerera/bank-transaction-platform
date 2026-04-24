@@ -3,17 +3,20 @@
   "template": {
     "mappings": {
       "properties": {
-        "timestamp": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS" },
-        "level": { "type": "keyword" },
-        "service": { "type": "keyword" },
-        "traceId": { "type": "keyword" },
-        "message": { "type": "text" },
-        "method": { "type": "keyword" },
-        "path": { "type": "keyword" },
-        "status": { "type": "integer" },
-        "durationMs": { "type": "long" },
-        "exception": { "type": "text" },
-        "stackTrace": { "type": "text" }
+        "timestamp":     { "type": "date",    "format": "yyyy-MM-dd HH:mm:ss.SSS" },
+        "level":         { "type": "keyword" },
+        "service":       { "type": "keyword" },
+        "traceId":       { "type": "keyword" },
+        "message":       { "type": "text"    },
+        "method":        { "type": "keyword" },
+        "path":          { "type": "keyword" },
+        "status":        { "type": "integer" },
+        "durationMs":    { "type": "long"    },
+        "clientIp":      { "type": "ip"      },
+        "env":           { "type": "keyword" },
+        "exceptionType": { "type": "keyword" },
+        "exception":     { "type": "text"    },
+        "stackTrace":    { "type": "text"    }
       }
     },
     "settings": {
