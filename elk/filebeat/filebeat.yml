@@ -5,6 +5,7 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
+      - /var/log/app/**/*.log
       - /var/log/app/*.log
     
     # JSON parsing
@@ -27,6 +28,8 @@ processors:
 
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
+  username: "elastic"
+  password: "BankAdmin123"
   index: "bank-logs-%{+yyyy.MM.dd}"
 
 setup.template.name: "bank-logs"
