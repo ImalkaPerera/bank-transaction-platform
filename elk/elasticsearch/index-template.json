@@ -1,7 +1,7 @@
 {
-  "index_patterns": ["*bank-logs*"],
+  "index_patterns": ["bank-logs*"],
   "data_stream": {},
-  "priority": 500,
+  "priority": 600,
   "template": {
     "mappings": {
       "properties": {
