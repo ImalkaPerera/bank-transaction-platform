@@ -63,6 +63,12 @@
 			<artifactId>logging-common</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<!-- Direct dependency ensures LogstashEncoder is on classpath at Logback init time -->
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>7.4</version>
+		</dependency>
 
 	</dependencies>
 

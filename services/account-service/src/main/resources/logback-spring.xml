@@ -13,7 +13,7 @@
 
     <!-- JSON File Appender for Filebeat ingestion -->
     <appender name="JSON_FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/var/log/app/${applicationName}.log</file>
+        <file>/var/log/app/account-service.log</file>
         <immediateFlush>true</immediateFlush>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdc>true</includeMdc>

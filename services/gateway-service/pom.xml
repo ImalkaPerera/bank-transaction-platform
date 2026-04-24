@@ -47,12 +47,11 @@
             <artifactId>logging-common</artifactId>
             <version>1.0.0</version>
         </dependency>
-
-        <!-- Lombok -->
+        <!-- Direct dependency ensures LogstashEncoder is on classpath at Logback init time -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.4</version>
         </dependency>
 
     </dependencies>
