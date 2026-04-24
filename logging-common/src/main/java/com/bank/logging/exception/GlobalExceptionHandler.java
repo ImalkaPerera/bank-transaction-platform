@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -20,21 +21,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
-        // Default classification
+        String logMessage = "Request failed";
+        String clientMessage = "An unexpected error occurred";
         String type = ex.getClass().getSimpleName();
         String category = "SYSTEM";
         String severity = "HIGH";
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String clientMessage = "An unexpected error occurred";
-        String logMessage = "Request failed";
 
-        // Extract metadata from semantic exceptions
+        // 1. Handle our Custom Semantic Exceptions
         if (ex instanceof BaseException baseEx) {
+            logMessage = baseEx.getLogMessage();
+            clientMessage = baseEx.getMessage();
             category = baseEx.getCategory();
             severity = baseEx.getSeverity();
             status = baseEx.getStatus();
-            clientMessage = baseEx.getMessage();
-            logMessage = baseEx.getLogMessage();
+        } 
+        // 2. Handle Standard Spring Web/WebFlux Exceptions (404, 405, etc.)
+        else if (ex instanceof ResponseStatusException rsEx) {
+            status = (HttpStatus) rsEx.getStatusCode();
+            logMessage = "Request rejected";
+            clientMessage = rsEx.getReason() != null ? rsEx.getReason() : "Resource not found";
+            category = "BUSINESS";
+            severity = "LOW";
         }
 
         // Put metadata in MDC for the ELK pipeline
