@@ -86,8 +86,10 @@ services:
       - ACCOUNT_SERVICE_URL=http://account-service:8081
       - TRANSACTION_SERVICE_URL=http://transaction-service:8082
     depends_on:
-      - account-service
-      - transaction-service
+      account-service:
+        condition: service_healthy
+      transaction-service:
+        condition: service_healthy
     volumes:
       - ./services/gateway-service/logs:/var/log/app
     networks:
@@ -104,6 +106,12 @@ services:
       - ./services/account-service/logs:/var/log/app
     networks:
       - bank-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8081/actuator/health | grep -q UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   transaction-service:
     build:
@@ -116,6 +124,12 @@ services:
       - ./services/transaction-service/logs:/var/log/app
     networks:
       - bank-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8082/actuator/health | grep -q UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   frontend:
     image: nginx:alpine
