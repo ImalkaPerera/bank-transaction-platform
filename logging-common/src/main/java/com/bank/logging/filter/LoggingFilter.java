@@ -12,21 +12,19 @@
 
 
 
-// Filter that logs details about every HTTP request and response.
 package com.bank.logging.filter;
 
-import com.bank.logging.util.MDCUtil;
+import io.micrometer.tracing.Tracer;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -34,12 +32,23 @@ import java.io.IOException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class LoggingFilter extends OncePerRequestFilter {
+
+    private final Tracer tracer;
 
     @Value("${spring.application.name:unknown-service}")
     private String applicationName;
 
-    // This method runs for every HTTP request
+    // Standard MDC keys
+    public static final String SERVICE = "service";
+    public static final String METHOD = "method";
+    public static final String PATH = "path";
+    public static final String STATUS = "status";
+    public static final String DURATION_MS = "durationMs";
+    public static final String TRACE_ID = "traceId";
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -47,50 +56,40 @@ public class LoggingFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         long startTime = System.currentTimeMillis();
+        
+        // Micrometer Tracing should have already initialized the traceId in MDC.
+        // We ensure service name is present.
+        MDC.put(SERVICE, applicationName);
+        MDC.put(METHOD, request.getMethod());
+        MDC.put(PATH, request.getRequestURI());
+
+        // If traceId is missing in MDC (shouldn't happen with Micrometer), get it from tracer
+        if (MDC.get("traceId") == null && tracer.currentSpan() != null) {
+            MDC.put(TRACE_ID, tracer.currentSpan().context().traceId());
+        }
 
         try {
-            // Generate a unique traceId for this request
-            String traceId = MDCUtil.generateTraceId();
-
-            // Set the service name in the logging context
-            MDCUtil.set(MDCUtil.SERVICE, applicationName);
-
-            // Add method, path, and IP to the logging context
-            MDCUtil.set(MDCUtil.METHOD, request.getMethod());
-            MDCUtil.set(MDCUtil.PATH,   request.getRequestURI());
-            MDCUtil.set(MDCUtil.IP,     getClientIp(request));
-
-            // Log the incoming request
-            log.info("Incoming request: {} {}",
-                    request.getMethod(),
-                    request.getRequestURI());
-
-            // Continue with the rest of the filter chain
+            log.info("Incoming request: {} {}", request.getMethod(), request.getRequestURI());
+            
             filterChain.doFilter(request, response);
-
-            // Log the response status and duration
+        } finally {
             long duration = System.currentTimeMillis() - startTime;
-            MDCUtil.set(MDCUtil.STATUS,      String.valueOf(response.getStatus()));
-            MDCUtil.set(MDCUtil.DURATION_MS, String.valueOf(duration));
+            
+            MDC.put(STATUS, String.valueOf(response.getStatus()));
+            MDC.put(DURATION_MS, String.valueOf(duration));
 
-            log.info("Request completed: {} {}  {} in {}ms",
+            log.info("Request completed: {} {} - Status: {} - Duration: {}ms",
                     request.getMethod(),
                     request.getRequestURI(),
                     response.getStatus(),
                     duration);
 
-        } finally {
-            // Always clear the logging context at the end
-            MDCUtil.clear();
+            // Clear custom MDC fields, but Micrometer handles traceId/spanId
+            MDC.remove(SERVICE);
+            MDC.remove(METHOD);
+            MDC.remove(PATH);
+            MDC.remove(STATUS);
+            MDC.remove(DURATION_MS);
         }
-    }
-
-    // Helper to get the client IP address
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty()) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
     }
 }

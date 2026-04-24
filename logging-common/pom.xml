@@ -12,7 +12,9 @@
 
     <properties>
         <java.version>17</java.version>
-        <spring.version>3.2.0</spring.version>
+        <spring-boot.version>3.2.0</spring-boot.version>
+        <micrometer-tracing.version>1.2.0</micrometer-tracing.version>
+        <logstash-encoder.version>7.4</logstash-encoder.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
@@ -23,28 +25,21 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring.version}</version>
-            <exclusions>
-                <!-- Exclude default Logback -->
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${spring-boot.version}</version>
         </dependency>
 
-        <!-- Log4j2 -->
+        <!-- Logback JSON Encoder -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-            <version>${spring.version}</version>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-encoder.version}</version>
         </dependency>
 
-        <!-- Log4j2 JSON layout -->
+        <!-- Micrometer Tracing -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-layout-template-json</artifactId>
-            <version>2.21.1</version>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+            <version>${micrometer-tracing.version}</version>
         </dependency>
 
         <!-- Lombok -->

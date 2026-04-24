@@ -4,28 +4,33 @@
 filebeat.inputs:
   - type: log
     enabled: true
-    # Watch for all .log files in all service subdirectories
     paths:
-      - /var/log/app/**/*.log
+      - /var/log/app/*.log
     
-    # Since our Spring Boot apps output JSON logs, parse them natively
+    # JSON parsing
     json.keys_under_root: true
+    json.overwrite_keys: true
     json.add_error_key: true
-    
-    # Add custom fields to identify where these logs are coming from
-    fields:
-      app: bank-transaction-platform
-    fields_under_root: true
+    json.expand_keys: true
 
-# Define where Filebeat should send the collected logs
-output.logstash:
-  # Send logs to the Logstash container on port 5044
-  hosts: ["logstash:5044"]
+# Processors to reduce noise
+processors:
+  - drop_fields:
+      fields: ["agent", "ecs", "input", "log", "host"]
+      ignore_missing: true
+  - timestamp:
+      field: timestamp
+      layouts:
+        - 'yyyy-MM-dd HH:mm:ss.SSS'
+      test:
+        - '2023-10-27 10:00:00.000'
 
-# Internal queue configuration for performance buffering
-queue.mem:
-  events: 4096
-  flush.min_events: 512
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  index: "bank-logs-%{+yyyy.MM.dd}"
 
-# Filebeat's own logging level
+setup.template.name: "bank-logs"
+setup.template.pattern: "bank-logs-*"
+setup.ilm.enabled: false
+
 logging.level: info
