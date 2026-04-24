@@ -9,7 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -22,17 +25,7 @@ public class GlobalExceptionHandler {
         String category = classifyCategory(ex);
         String severity = classifySeverity(ex);
 
-        Map<String, Object> errorMap = new HashMap<>();
-        errorMap.put("type", type);
-        errorMap.put("category", category);
-        errorMap.put("severity", severity);
-        errorMap.put("message", ex.getMessage());
-        
-        // Nest the stack trace correctly for the template
-        StringWriter sw = new StringWriter();
-        ex.printStackTrace(new PrintWriter(sw));
-        errorMap.put("error.stack", sw.toString());
-
+        // Put metadata in MDC for the ELK pipeline
         MDC.put("error.type", type);
         MDC.put("error.category", category);
         MDC.put("error.severity", severity);

@@ -25,6 +25,7 @@
                 <levelValue>[ignore]</levelValue>
                 <version>[ignore]</version>
                 <logger>logger</logger>
+                <stackTrace>error.stack</stackTrace>
             </fieldNames>
             <!-- Service is already provided by LoggingFilter MDC -->
         </encoder>
