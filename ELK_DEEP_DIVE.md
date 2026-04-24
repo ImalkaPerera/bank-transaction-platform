@@ -25,6 +25,7 @@ Filebeat is a "sidecar." It sits next to your app and "tails" the log file (like
 ### Step D: The Factory (`Logstash`)
 Logstash is the "heavy lifter." 
 - **The Transformation:** It can look at the log and say: *"Hey, this is an ERROR! I'm going to add a tag named 'urgent' and mask the user's credit card number."*
+- **The Grok Secret:** If you weren't using JSON (e.g., plain text), Logstash uses a tool called **Grok** (Regex on steroids) to "break" a text line into pieces like `timestamp`, `level`, and `message`.
 - **The Output:** It sends the final JSON to **Elasticsearch**.
 
 ### Step E: The Library (`Elasticsearch`)
@@ -74,7 +75,31 @@ This is where 90% of ELK errors happen.
 
 ---
 
-## 5. Scaling to a "Real" Project (Production)
+## 6. The "3 Pillars" of Java Logging
+
+To be a pro, you must understand these three things:
+
+### Pillar 1: Log Levels (The Filter)
+- **ERROR**: "Someone needs to fix this NOW." (e.g., Database is down).
+- **WARN**: "Something is weird, but the app is still running." (e.g., User entered a wrong password).
+- **INFO**: "Normal business operation." (e.g., Account created).
+- **DEBUG**: "Developer info." (e.g., Checking the value of a variable).
+- **TRACE**: "Extreme detail." (Shows every single step).
+
+**Pro Tip:** In production, you usually set the level to `INFO`. If you use `DEBUG` in production, you will generate too many logs and fill up your disk!
+
+### Pillar 2: Appenders (The Destination)
+An Appender is just a "target" for your logs.
+- **ConsoleAppender**: Sends logs to your terminal (good for development).
+- **FileAppender**: Writes logs to a file (good for Filebeat).
+- **RollingFileAppender**: **CRITICAL FOR REAL PROJECTS.** It automatically starts a new file every day or every 10MB so your logs don't become a 100GB monster.
+
+### Pillar 3: Layouts/Encoders (The Format)
+This is what we fixed! We moved from a **PatternLayout** (human text) to a **LogstashEncoder** (machine JSON).
+
+---
+
+## 7. Scaling to a "Real" Project (Production)
 
 When you move to a real project with millions of logs:
 
