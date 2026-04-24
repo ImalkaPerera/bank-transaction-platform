@@ -23,6 +23,7 @@
                 <message>message</message>
                 <logger>logger</logger>
             </fieldNames>
+            <customFields>{"service":"transaction-service"}</customFields>
         </encoder>
     </appender>
 

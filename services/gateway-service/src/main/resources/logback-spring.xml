@@ -23,6 +23,7 @@
                 <message>message</message>
                 <logger>logger</logger>
             </fieldNames>
+            <customFields>{"service":"gateway-service"}</customFields>
         </encoder>
     </appender>
 

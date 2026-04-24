@@ -18,13 +18,12 @@
             <includeThreadName>false</includeThreadName>
             <includeContext>false</includeContext>
             <fieldNames>
-                <!-- Rename to avoid collision with @timestamp -->
                 <timestamp>[ignore]</timestamp> 
                 <level>level</level>
                 <message>message</message>
                 <logger>logger</logger>
             </fieldNames>
-            <!-- Service is handled by LoggingFilter MDC -->
+            <customFields>{"service":"account-service"}</customFields>
         </encoder>
     </appender>
 
