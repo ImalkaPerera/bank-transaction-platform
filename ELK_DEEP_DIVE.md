@@ -99,7 +99,36 @@ This is what we fixed! We moved from a **PatternLayout** (human text) to a **Log
 
 ---
 
-## 7. Scaling to a "Real" Project (Production)
+## 6. The "Golden Rule" of Security: Log Masking
+
+In a real bank project, logging is a security risk. If you log a user's **Password** or **Credit Card Number**, you are in trouble!
+
+### How to protect data:
+1. **At the Source (Java):** Use a custom Logback layout or a utility class to replace sensitive strings with `****`.
+2. **At the Pipeline (Logstash):** Use the `mutate` filter with a `gsub` (Global Substitute) to find credit card patterns and mask them before they reach Elasticsearch.
+
+**Remember:** Logs are often stored for 90+ days. If they contain raw customer data, a hacker who breaks into your Kibana gets everything!
+
+---
+
+## 7. The 3 Pillars of Observability
+
+ELK is great for Logs, but a "Real Project" needs all three pillars:
+
+| Pillar | What It Is | Tool to Use |
+|:---|:---|:---|
+| **Logs** | "A specific event happened." | ELK Stack |
+| **Metrics** | "How is the system health?" (CPU, RAM, Error Rate) | **Prometheus** / Metricbeat |
+| **Traces** | "How did the request travel?" | **Jaeger** / OpenTelemetry |
+
+**Why you need all three:** 
+- **Metrics** tell you *there is a problem* (e.g., CPU is 99%).
+- **Logs** tell you *what the problem is* (e.g., "Out of Memory Exception").
+- **Traces** tell you *exactly where it happened* (e.g., "It failed in the Transaction Service").
+
+---
+
+## 8. Scaling to a "Real" Project (Production)
 
 When you move to a real project with millions of logs:
 
